@@ -1,24 +1,25 @@
-# Compiled class file
-*.class
+# Gradle
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
 
-# Log file
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
 *.log
 
-# BlueJ files
-*.ctxt
+# Java/Kotlin
+*.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Python venv (kui kasutad analüüsiks)
+.venv/
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# Outputs
+out/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Crash logs
 hs_err_pid*
 replay_pid*
