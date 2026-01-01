@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/draws/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
 
                         // muu – autentitud
                         .anyRequest().authenticated()
