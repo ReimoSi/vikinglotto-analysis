@@ -45,12 +45,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/draws/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/analysis/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/generate/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/generate/**").hasAnyRole("USER","ADMIN")
 
                         // KIRJUTAMINE (ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/admin/**").hasRole("ADMIN")
 
                         // muu – autentitud
                         .anyRequest().authenticated()
