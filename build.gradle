@@ -55,3 +55,8 @@ compileJava {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.register('generateDataSqlFromCsv', Exec) {
+	def inCsv = project.findProperty('csv') ?: 'docs/data/vikinglotto-sample-import.csv'
+	commandLine 'python', 'tools/csv_to_data_sql.py', inCsv, 'src/main/resources/data.sql'
+}
