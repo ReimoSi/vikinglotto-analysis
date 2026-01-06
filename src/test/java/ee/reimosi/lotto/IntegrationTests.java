@@ -171,6 +171,37 @@ class IntegrationTests {
         assertThat(after).isGreaterThan(before);
     }
 
+    @Test
+    @DisplayName("GET /api/draws/export.csv -> CSV header + at least one data row + date-like token")
+    void draws_export_csv_ok() {
+        String url = baseUrl + "/api/draws/export.csv";
+        ResponseEntity<String> resp = user.getForEntity(url, String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getHeaders().getContentType().toString()).contains("text/csv");
+
+        String body = resp.getBody();
+        assertThat(body).isNotNull();
+
+        // strip possible UTF-8 BOM
+        if (!body.isEmpty() && body.charAt(0) == '\uFEFF') {
+            body = body.substring(1);
+        }
+
+        String[] lines = body.split("\\R");
+        assertThat(lines.length).isGreaterThan(1); // header + >=1 data row
+
+        String header = lines[0].trim();
+        assertThat(header).isEqualTo("id,draw_id,draw_date,main_numbers,bonus_numbers");
+
+        // Accept both ISO (YYYY-MM-DD) and Excel-safe (="YYYY-MM-DD")
+        java.util.regex.Pattern datePat = java.util.regex.Pattern.compile(
+                "(?s)(\\b\\d{4}-\\d{2}-\\d{2}\\b|=\"\\d{4}-\\d{2}-\\d{2}\")"
+        );
+        assertThat(datePat.matcher(body).find())
+                .as("CSV body should contain ISO date (YYYY-MM-DD) or Excel-safe =\"YYYY-MM-DD\"")
+                .isTrue();
+    }
+
     private int getDrawsCount() {
         ResponseEntity<List<Map<String, Object>>> resp = user.exchange(
                 baseUrl + "/api/draws",
