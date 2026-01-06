@@ -42,19 +42,31 @@ public class GenerateExportController {
         sb.append("main1,main2,main3,main4,main5,main6,bonus\n");
         for (GeneratedTicket t : tickets) {
             var main = t.getMain();
-            sb.append(main.get(0)).append(",")
-                    .append(main.get(1)).append(",")
-                    .append(main.get(2)).append(",")
-                    .append(main.get(3)).append(",")
-                    .append(main.get(4)).append(",")
-                    .append(main.get(5)).append(",")
-                    .append(t.getBonus()).append("\n");
+            sb.append(quote(String.valueOf(main.get(0)))).append(',')
+                    .append(quote(String.valueOf(main.get(1)))).append(',')
+                    .append(quote(String.valueOf(main.get(2)))).append(',')
+                    .append(quote(String.valueOf(main.get(3)))).append(',')
+                    .append(quote(String.valueOf(main.get(4)))).append(',')
+                    .append(quote(String.valueOf(main.get(5)))).append(',')
+                    .append(quote(String.valueOf(t.getBonus()))).append('\n');
         }
-        byte[] bytes = sb.toString().getBytes(StandardCharsets.UTF_8);
+
+        // UTF-8 BOM, et Excel loeks täpitähed/jutumärgid korrektselt
+        byte[] bom  = new byte[]{(byte)0xEF,(byte)0xBB,(byte)0xBF};
+        byte[] data = sb.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] out  = new byte[bom.length + data.length];
+        System.arraycopy(bom, 0, out, 0, bom.length);
+        System.arraycopy(data, 0, out, bom.length, data.length);
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"generated-tickets.csv\"")
-                .contentType(MediaType.valueOf("text/csv"))
-                .body(bytes);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"generated-tickets.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(out);
     }
+
+    private static String quote(String v) {
+        if (v == null) return "\"\"";
+        return "\"" + v.replace("\"", "\"\"") + "\"";
+    }
+
 }
