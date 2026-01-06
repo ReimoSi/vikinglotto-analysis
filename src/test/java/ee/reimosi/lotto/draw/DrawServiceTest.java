@@ -30,15 +30,12 @@ class DrawServiceTest {
         when(repository.existsByDrawId("2099-01-01")).thenReturn(false);
         when(repository.save(any(Draw.class))).thenAnswer(inv -> {
             Draw d = inv.getArgument(0);
-            // Mõnes projektis DTO id ei pruugi mapperiga tagasi tulla – see on ok
             d.setId(123L);
             return d;
         });
 
         DrawResponse resp = service.create(req);
 
-        // Ärme tee rangeid väiteid ID kohta (mapper võib selle ignoreerida)
-        // Kui ID siiski on seatud, võiks olla 123L – aga see pole kohustuslik
         if (resp.getId() != null) {
             assertThat(resp.getId()).isEqualTo(123L);
         }
