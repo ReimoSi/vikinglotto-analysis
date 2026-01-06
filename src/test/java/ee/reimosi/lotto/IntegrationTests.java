@@ -123,12 +123,18 @@ class IntegrationTests {
         String url = baseUrl + "/api/generate/export.csv?method=uniform&rows=3&seed=42";
         ResponseEntity<String> resp = user.getForEntity(url, String.class);
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
-        MediaType ct = resp.getHeaders().getContentType();
-        assertThat(ct).isNotNull();
-        assertThat(ct.toString()).contains("text/csv");
+        assertThat(resp.getHeaders().getContentType().toString()).contains("text/csv");
+
         String body = resp.getBody();
         assertThat(body).isNotNull();
-        assertThat(body.split("\\R")[0].trim()).isEqualTo("main1,main2,main3,main4,main5,main6,bonus");
+
+        // strip UTF-8 BOM, kui olemas
+        if (!body.isEmpty() && body.charAt(0) == '\uFEFF') {
+            body = body.substring(1);
+        }
+
+        String header = body.split("\\R", 2)[0].trim();
+        assertThat(header).isEqualTo("main1,main2,main3,main4,main5,main6,bonus");
     }
 
     @Test
@@ -200,6 +206,89 @@ class IntegrationTests {
         assertThat(datePat.matcher(body).find())
                 .as("CSV body should contain ISO date (YYYY-MM-DD) or Excel-safe =\"YYYY-MM-DD\"")
                 .isTrue();
+    }
+
+    @Test
+    @DisplayName("GET /actuator/health without auth -> 200")
+    void actuator_health_public() {
+        ResponseEntity<String> resp = anon.getForEntity(baseUrl + "/actuator/health", String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("GET /api/admin/import/csv as USER -> 403")
+    void admin_import_forbidden_for_user() {
+        String url = baseUrl + "/api/admin/import/csv";
+        try {
+            user.getForEntity(url, String.class);
+            // kui siia jõuame, siis ei tulnud 403
+            assertThat(true).as("Expected 403 Forbidden").isFalse();
+        } catch (org.springframework.web.client.RestClientResponseException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(403);
+        }
+    }
+
+    @Test
+    @DisplayName("GET /swagger-ui/index.html without auth -> 200")
+    void swagger_public() {
+        ResponseEntity<String> resp = anon.getForEntity(baseUrl + "/swagger-ui/index.html", String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("GET /actuator/info without auth -> 200")
+    void actuator_info_public() {
+        ResponseEntity<String> resp = anon.getForEntity(baseUrl + "/actuator/info", String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("POST /api/draws duplicate drawId -> 409")
+    void draws_duplicate_conflict() {
+        // eeldame, et data.sql-is on '2024-01-03' juba olemas
+        String url = baseUrl + "/api/draws";
+        String body = """
+        { "drawId":"2024-01-03", "drawDate":"2024-01-03", "mainNumbers":"1 2 3 4 5 6", "bonusNumbers":"1" }
+        """;
+        HttpHeaders h = new HttpHeaders();
+        h.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> req = new HttpEntity<>(body, h);
+        try {
+            admin.exchange(url, HttpMethod.POST, req, String.class);
+            assertThat(true).as("Expected 409 Conflict").isFalse();
+        } catch (org.springframework.web.client.RestClientResponseException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(409);
+        }
+    }
+
+    @Test
+    @DisplayName("PUT /api/draws/{id} non-existent -> 404")
+    void draws_update_notFound() {
+        String url = baseUrl + "/api/draws/999999";
+        String body = """
+        { "drawId":"2099-12-31", "drawDate":"2099-12-31", "mainNumbers":"1 2 3 4 5 6", "bonusNumbers":"1" }
+        """;
+        HttpHeaders h = new HttpHeaders();
+        h.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> req = new HttpEntity<>(body, h);
+        try {
+            admin.exchange(url, HttpMethod.PUT, req, String.class);
+            assertThat(true).as("Expected 404 Not Found").isFalse();
+        } catch (org.springframework.web.client.RestClientResponseException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(404);
+        }
+    }
+
+    @Test
+    @DisplayName("DELETE /api/draws/{id} non-existent -> 404")
+    void draws_delete_notFound() {
+        String url = baseUrl + "/api/draws/999999";
+        try {
+            admin.exchange(url, HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+            assertThat(true).as("Expected 404 Not Found").isFalse();
+        } catch (org.springframework.web.client.RestClientResponseException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(404);
+        }
     }
 
     private int getDrawsCount() {
