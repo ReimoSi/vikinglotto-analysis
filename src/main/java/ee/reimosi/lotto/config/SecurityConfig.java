@@ -33,28 +33,31 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger avatud
+                        // Public: Swagger + Actuator
                         .requestMatchers("/",
                                 "/error",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/swagger-ui.html",
-                                "/swagger-ui/**").permitAll()
+                                "/swagger-ui/**",
+                                "/actuator/health",
+                                "/actuator/info"
+                                ).permitAll()
 
-                        // LUGEMINE (USER/ADMIN)
+                        // Read (USER/ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/draws/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/analysis/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/generate/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/generate/**").hasAnyRole("USER","ADMIN")
 
-                        // KIRJUTAMINE (ADMIN)
+                        // Write (ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/draws/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/admin/**").hasRole("ADMIN")
 
-                        // muu – autentitud
+                        // Everything else requires auth
                         .anyRequest().authenticated()
                 );
         return http.build();
