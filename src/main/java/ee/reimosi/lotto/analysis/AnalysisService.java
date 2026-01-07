@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.IntSummaryStatistics;
 import java.util.List;
 
 @Service
@@ -18,7 +17,7 @@ public class AnalysisService {
 
     private final DrawRepository repo;
 
-    // Vikinglotto reeglid
+    // Vikinglotto rules
     private static final int MAIN_POOL = 48;
     private static final int MAIN_PER_DRAW = 6;
     private static final int BONUS_POOL = 5; // informatiivne; bonus freq arvestame 1..5
@@ -65,7 +64,10 @@ public class AnalysisService {
         var arr = new ArrayList<Integer>();
         if (s == null || s.isBlank()) return arr;
         for (String p : s.trim().split("\\s+")) {
-            try { arr.add(Integer.parseInt(p)); } catch (NumberFormatException ignored) {}
+            try {
+                arr.add(Integer.parseInt(p));
+            } catch (NumberFormatException ignored) {
+            }
         }
         return arr;
     }

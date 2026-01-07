@@ -46,9 +46,14 @@ public class DrawService {
     }
 
     public static class DrawsNotFound extends RuntimeException {
-        public DrawsNotFound(Long id) { super("Draw not found: " + id); }
+        public DrawsNotFound(Long id) {
+            super("Draw not found: " + id);
+        }
     }
+
     public static class DuplicateDrawId extends RuntimeException {
-        public DuplicateDrawId(String drawId) { super("Duplicate drawId: " + drawId); }
+        public DuplicateDrawId(String drawId) {
+            super("Duplicate drawId: " + drawId);
+        }
     }
 }

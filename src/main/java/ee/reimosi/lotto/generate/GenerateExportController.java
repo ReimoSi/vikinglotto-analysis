@@ -51,7 +51,6 @@ public class GenerateExportController {
                     .append(quote(String.valueOf(t.getBonus()))).append('\n');
         }
 
-        // UTF-8 BOM, et Excel loeks täpitähed/jutumärgid korrektselt
         byte[] bom  = new byte[]{(byte)0xEF,(byte)0xBB,(byte)0xBF};
         byte[] data = sb.toString().getBytes(StandardCharsets.UTF_8);
         byte[] out  = new byte[bom.length + data.length];

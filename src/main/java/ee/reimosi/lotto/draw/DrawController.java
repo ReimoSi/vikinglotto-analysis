@@ -22,16 +22,22 @@ public class DrawController {
 
     @Operation(summary = "List all draws")
     @GetMapping
-    public List<DrawResponse> list() { return service.list(); }
+    public List<DrawResponse> list() {
+        return service.list();
+    }
 
     @Operation(summary = "Get a draw by ID")
     @GetMapping("/{id}")
-    public DrawResponse get(@PathVariable Long id) { return service.get(id); }
+    public DrawResponse get(@PathVariable Long id) {
+        return service.get(id);
+    }
 
     @Operation(summary = "Create a new draw")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DrawResponse create(@Valid @RequestBody DrawRequest req) { return service.create(req); }
+    public DrawResponse create(@Valid @RequestBody DrawRequest req) {
+        return service.create(req);
+    }
 
     @Operation(summary = "Update an existing draw")
     @PutMapping("/{id}")
@@ -42,7 +48,9 @@ public class DrawController {
     @Operation(summary = "Delete a draw")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { service.delete(id); }
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
 
     @GetMapping(value = "/export.csv", produces = "text/csv")
     public ResponseEntity<byte[]> exportAllCsv() {
@@ -52,10 +60,8 @@ public class DrawController {
         sb.append("id,draw_id,draw_date,main_numbers,bonus_numbers\n");
         for (DrawResponse r : all) {
             String id = r.getId() == null ? "" : String.valueOf(r.getId());
-            // Exceli jaoks tekstina, et kuupäev ei moonduks:
             String drawIdTxt = "=\"" + r.getDrawId() + "\"";
-            String dateTxt   = "=\"" + r.getDrawDate().toString() + "\"";
-
+            String dateTxt = "=\"" + r.getDrawDate().toString() + "\"";
             sb.append(quote(id)).append(',')
                     .append(quote(drawIdTxt)).append(',')
                     .append(quote(dateTxt)).append(',')
@@ -64,10 +70,9 @@ public class DrawController {
                     .append('\n');
         }
 
-        // UTF-8 BOM, et Excel loeks UTF-8 korrektselt
-        byte[] bom  = new byte[]{(byte)0xEF,(byte)0xBB,(byte)0xBF};
+        byte[] bom = new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
         byte[] data = sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        byte[] out  = new byte[bom.length + data.length];
+        byte[] out = new byte[bom.length + data.length];
         System.arraycopy(bom, 0, out, 0, bom.length);
         System.arraycopy(data, 0, out, bom.length, data.length);
 

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
@@ -35,7 +37,9 @@ public class CsvImportService {
                     if (!isHeader(line)) {
                         // Kui pole headerit, käsitle nagu andmerida
                         var ok = persistLine(line);
-                        if (ok == 1) imported++; else if (ok == 0) skipped++; else errors++;
+                        if (ok == 1) imported++;
+                        else if (ok == 0) skipped++;
+                        else errors++;
                     }
                     continue;
                 }
@@ -62,8 +66,8 @@ public class CsvImportService {
      * @return 1 imported, 0 skipped (duplicate), -1 error
      */
     private int persistLine(String line) {
-        // eeldame, et väljad ei sisalda koma sees koma
-        // formaat: draw_id,draw_date,main_numbers,bonus_numbers
+        // assume, that those fields do not include commas
+        // format: draw_id,draw_date,main_numbers,bonus_numbers
         String[] parts = line.split(",", -1);
         if (parts.length < 4) return -1;
 

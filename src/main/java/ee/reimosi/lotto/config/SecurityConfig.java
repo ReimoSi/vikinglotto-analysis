@@ -22,8 +22,8 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        var user  = User.withUsername("user").password(encoder.encode("user123")).roles("USER").build();
-        var admin = User.withUsername("admin").password(encoder.encode("admin123")).roles("ADMIN","USER").build();
+        var user = User.withUsername("user").password(encoder.encode("user123")).roles("USER").build();
+        var admin = User.withUsername("admin").password(encoder.encode("admin123")).roles("ADMIN", "USER").build();
         return new InMemoryUserDetailsManager(user, admin);
     }
 
@@ -42,13 +42,13 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/actuator/health",
                                 "/actuator/info"
-                                ).permitAll()
+                        ).permitAll()
 
                         // Read (USER/ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/api/draws/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/analysis/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/generate/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/generate/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/draws/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/analysis/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/generate/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/generate/**").hasAnyRole("USER", "ADMIN")
 
                         // Write (ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/draws/**").hasRole("ADMIN")

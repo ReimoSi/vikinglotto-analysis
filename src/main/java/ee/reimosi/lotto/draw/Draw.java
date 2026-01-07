@@ -2,14 +2,18 @@ package ee.reimosi.lotto.draw;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "draw", indexes = {
         @Index(name = "ux_draw_draw_id", columnList = "drawId", unique = true)
 })
-@Getter @Setter @Builder
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Draw {
     @Id

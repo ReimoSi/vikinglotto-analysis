@@ -8,6 +8,7 @@ import org.mapstruct.*;
 public interface DrawMapper {
     @Mapping(target = "id", ignore = true)
     Draw toEntity(DrawRequest request);
+
     DrawResponse toResponse(Draw entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
